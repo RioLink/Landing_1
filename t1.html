@@ -1,57 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    input[type="text"] {
+      width: 70%;
+      padding: 10px;
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px 15px;
+    }
+    .profile {
+      margin-top: 20px;
+    }
+    .profile img {
+      width: 150px;
+      border-radius: 50%;
+    }
+    .info {
+      margin-top: 10px;
+    }
+    .info p {
+      margin: 5px 0;
+    }
+    .error {
+      color: red;
+    }
+  </style>
 </head>
-
 <body>
-    <script>
-        // alert("Hello from JS");
-        // let res = confirm("Continue?");
-        // console.log(res);
 
-        // if (res) {
-        // let name = prompt("What is your name ?", "Noname");
-        // alert(name);
-        // }
+<div class="container">
+  <h2>Пошук користувача GitHub</h2>
+  <input type="text" id="username" placeholder="Введіть логін GitHub">
+  <button onclick="getUser()">Пошук</button>
 
-        // else
-        // {
-        //     alert("False");
-        // }
+  <div id="result" class="profile"></div>
+</div>
 
-        x = +prompt("Input x= ");
-        var str = "";
-        switch(x){
-            case 1:
-                str += "1";
-                break;
-            case 2:
-                str += "2";
-                break;
-            case 3:
-                str += "3";
-                break;
-            case 4:
-                str += "4";
-                break;
-            default:
-                str += "5";
-        }
-        alert(str);
+<script>
 
 
+function getUser() {
+  const username = document.getElementById("username").value.trim();
+  const resultDiv = document.getElementById("result");
+  resultDiv.innerHTML = "";
+
+  if (!username) {
+    resultDiv.innerHTML = "<p class='error'>Будь ласка, введіть логін користувача.</p>";
+    return;
+  }
+
+  fetch(`https://api.github.com/users/${username}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Користувача не знайдено.");
+      }
+      return response.json();
+    })
+    .then(user => {
+      resultDiv.innerHTML = `
+        <img src="${user.avatar_url}" alt="Аватар">
+        <div class="info">
+          <p><strong>Ім’я:</strong> ${user.name || 'Немає даних'}</p>
+          <p><strong>Логін:</strong> ${user.login}</p>
+          <p><strong>GitHub:</strong> <a href="${user.html_url}" target="_blank">${user.html_url}</a></p>
+          <p><strong>Блог:</strong> ${user.blog ? `<a href="${user.blog}" target="_blank">${user.blog}</a>` : 'Немає даних'}</p>
+          <p><strong>Місто:</strong> ${user.location || 'Немає даних'}</p>
+          <p><strong>Пошта:</strong> ${user.email || 'Немає даних'}</p>
+          <p><strong>Підписники:</strong> ${user.followers}</p>
+          <p><strong>Підписки:</strong> ${user.following}</p>
+        </div>
+      `;
+    })
+    .catch(error => {
+      resultDiv.innerHTML = `<p class='error'>${error.message}</p>`;
+    });
+}
 
 
 
 
-
-
-    </script>
+</script>
 
 </body>
-
 </html>
